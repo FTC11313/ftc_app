@@ -13,9 +13,11 @@ import java.lang.Math;
 import java.lang.String;
 /**
  * Created by David on 10/6/2017.
+ * Official Competition Program
+ *
  */
 //@Disabled
-@TeleOp (name="Slide Drive 1.0.0")
+@TeleOp (name="Slide Drive 1.2.0")
 public class SlideDrive extends OpMode {
     private ElapsedTime time = new ElapsedTime();
     private DcMotor leftMotor = null;
@@ -28,15 +30,47 @@ public class SlideDrive extends OpMode {
     private Servo leftGrab = null;
     private Servo rightGrab = null;
 
-    int dPadDirection = 1;
-    boolean single = true;
-    int leftOverOne;
-    int rightOverOne;
-    int frontOverOne;
-    int backOverOne;
-    double rotRatio = .733333;
-    int direction = 0;
-    int over;
+    private int dPadDirection = 1;
+    private boolean single = true;
+    private int leftOverOne;
+    private int rightOverOne;
+    private int frontOverOne;
+    private int backOverOne;
+    private double rotRatio = .733333;
+    private int direction = 0;
+    private int over;
+
+    private double leftStickY;
+    private double leftStickX;
+    private double rightStickX;
+
+    private double linLeftPower;
+    private double linRightPower;
+    private double linFrontPower;
+    private double linBackPower;
+
+    private double rotLeftPower;
+    private double rotRightPower;
+    private double rotBackPower;
+    private double rotFrontPower;
+
+    private double testLeftPower;
+    private double testRightPower;
+    private double testBackPower;
+    private double testFrontPower;
+
+    private double penultLeftPower = 0;
+    private double penultRightPower = 0;
+    private double penultFrontPower = 0;
+    private double penultBackPower = 0;
+
+    private double finLeftPower = 0;
+    private double finRightPower = 0;
+    private double finFrontPower = 0;
+    private double finBackPower = 0;
+
+
+
 
     /*private DcMotor relicLeftMotor = null;
     private DcMotor relicRightMotor = null;
@@ -66,7 +100,6 @@ public class SlideDrive extends OpMode {
 
         telemetry.setAutoClear(false);
 
-
         //jewelServo = hardwareMap.get(Servo.class, "s1");
 
         //jewelServo.setPosition(180);
@@ -87,44 +120,40 @@ public class SlideDrive extends OpMode {
         telemetry.clear();
         telemetry.addData("Status", "Loop");
 
-        if (gamepad1.dpad_up == true) {
+        if (gamepad1.dpad_up) {
             dPadDirection = 1;
             telemetry.addData("Direction: ", "Forwrads");
-        } else if (gamepad1.dpad_left == true) {
+        } else if (gamepad1.dpad_left) {
             dPadDirection = 2;
             telemetry.addData("Direction: ", "Left");
-        } else if (gamepad1.dpad_down == true) {
+        } else if (gamepad1.dpad_down) {
             dPadDirection = 3;
             telemetry.addData("Direction: ", "Backwards");
-        } else if (gamepad1.dpad_right == true) {
+        } else if (gamepad1.dpad_right) {
             dPadDirection = 4;
             telemetry.addData("Direction: ", "Right");
         }
 
 
-        double leftStickY = gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y);
-        double leftStickX = gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
-        double rightStickX = gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x);
+        leftStickY = gamepad1.left_stick_y;
+        leftStickX = gamepad1.left_stick_x;
+        rightStickX = gamepad1.right_stick_x;
 
-        double linLeftPower = leftStickY;
-        double linRightPower = -leftStickY;
-        double linFrontPower = -leftStickX;
-        double linBackPower = leftStickX;
+        linLeftPower = leftStickY;
+        linRightPower = -leftStickY;
+        linFrontPower = -leftStickX;
+        linBackPower = leftStickX;
 
-        double rotLeftPower = -rightStickX;
-        double rotRightPower = -rightStickX;
-        double rotBackPower = -rightStickX * rotRatio;
-        double rotFrontPower = -rightStickX * rotRatio;
+        rotLeftPower = -rightStickX;
+        rotRightPower = -rightStickX;
+        rotBackPower = -rightStickX * rotRatio;
+        rotFrontPower = -rightStickX * rotRatio;
 
-        double testLeftPower = linLeftPower + rotLeftPower;
-        double testRightPower = linRightPower + rotRightPower;
-        double testBackPower = linBackPower + rotBackPower;
-        double testFrontPower = linFrontPower + rotFrontPower;
+        testLeftPower = linLeftPower + rotLeftPower;
+        testRightPower = linRightPower + rotRightPower;
+        testBackPower = linBackPower + rotBackPower;
+        testFrontPower = linFrontPower + rotFrontPower;
 
-        double finLeftPower = 0;
-        double finRightPower = 0;
-        double finFrontPower = 0;
-        double finBackPower = 0;
 
         telemetry.addData("Left X Joy Raw: ", gamepad1.left_stick_x);
         telemetry.addData("Left Y Joy Raw: ", gamepad1.left_stick_y);
@@ -170,10 +199,10 @@ public class SlideDrive extends OpMode {
         switch (over) {
 
             case 0:
-                finLeftPower = testLeftPower;
-                finRightPower = testRightPower;
-                finFrontPower = testFrontPower;
-                finBackPower = testBackPower;
+                penultLeftPower = testLeftPower;
+                penultRightPower = testRightPower;
+                penultFrontPower = testFrontPower;
+                penultBackPower = testBackPower;
                 break;
             case 1:
                 if (single == true) {
@@ -181,29 +210,29 @@ public class SlideDrive extends OpMode {
                     switch (direction) {
 
                         case 1:
-                            finLeftPower = testLeftPower / Math.abs(testLeftPower);
-                            finRightPower = testRightPower / Math.abs(testLeftPower);
-                            finFrontPower = testFrontPower / Math.abs(testLeftPower);
-                            finBackPower = testBackPower / Math.abs(testLeftPower);
+                            penultLeftPower = testLeftPower / Math.abs(testLeftPower);
+                            penultRightPower = testRightPower / Math.abs(testLeftPower);
+                            penultFrontPower = testFrontPower / Math.abs(testLeftPower);
+                            penultBackPower = testBackPower / Math.abs(testLeftPower);
                             break;
                         case 2:
-                            finLeftPower = testLeftPower / Math.abs(testRightPower);
-                            finRightPower = testRightPower / Math.abs(testRightPower);
-                            finFrontPower = testFrontPower / Math.abs(testRightPower);
-                            finBackPower = testBackPower / Math.abs(testRightPower);
+                            penultLeftPower = testLeftPower / Math.abs(testRightPower);
+                            penultRightPower = testRightPower / Math.abs(testRightPower);
+                            penultFrontPower = testFrontPower / Math.abs(testRightPower);
+                            penultBackPower = testBackPower / Math.abs(testRightPower);
                             break;
                         case 3:
-                            finLeftPower = testLeftPower / Math.abs(testFrontPower);
-                            finRightPower = testRightPower / Math.abs(testFrontPower);
-                            finFrontPower = testFrontPower / Math.abs(testFrontPower);
-                            finBackPower = testBackPower / Math.abs(testFrontPower);
+                            penultLeftPower = testLeftPower / Math.abs(testFrontPower);
+                            penultRightPower = testRightPower / Math.abs(testFrontPower);
+                            penultFrontPower = testFrontPower / Math.abs(testFrontPower);
+                            penultBackPower = testBackPower / Math.abs(testFrontPower);
                             break;
 
                         case 4:
-                            finLeftPower = testLeftPower / Math.abs(testBackPower);
-                            finRightPower = testRightPower / Math.abs(testBackPower);
-                            finFrontPower = testFrontPower / Math.abs(testBackPower);
-                            finBackPower = testBackPower / Math.abs(testBackPower);
+                            penultLeftPower = testLeftPower / Math.abs(testBackPower);
+                            penultRightPower = testRightPower / Math.abs(testBackPower);
+                            penultFrontPower = testFrontPower / Math.abs(testBackPower);
+                            penultBackPower = testBackPower / Math.abs(testBackPower);
                             break;
 
                         default:
@@ -212,16 +241,34 @@ public class SlideDrive extends OpMode {
                     }
                 } else {
                     double maxPower = Math.max(Math.max(Math.abs(testLeftPower), Math.abs(testRightPower)), Math.max(Math.abs(testFrontPower), Math.abs(testBackPower)));
-                    finLeftPower = testLeftPower / maxPower;
-                    finRightPower = testRightPower / maxPower;
-                    finFrontPower = testFrontPower / maxPower;
-                    finBackPower = testBackPower / maxPower;
+                    penultLeftPower = testLeftPower / maxPower;
+                    penultRightPower = testRightPower / maxPower;
+                    penultFrontPower = testFrontPower / maxPower;
+                    penultBackPower = testBackPower / maxPower;
                 }
                 break;
 
             default:
                 telemetry.addData("Something", "Messed up");
                 break;
+        }
+        if (gamepad1.x) {
+            finLeftPower = penultLeftPower * 0.7;
+            finRightPower = penultRightPower * 0.7;
+            finFrontPower = penultFrontPower * 0.7;
+            finBackPower = penultBackPower * 0.7;
+        }
+        else if (gamepad1.y) {
+            finLeftPower = penultLeftPower;
+            finRightPower = penultRightPower;
+            finFrontPower = penultFrontPower;
+            finBackPower = penultBackPower;
+        }
+        else {
+            finLeftPower = penultLeftPower * Math.abs(penultLeftPower);
+            finRightPower = penultRightPower * Math.abs(penultRightPower);
+            finFrontPower = penultFrontPower * Math.abs(penultFrontPower);
+            finBackPower = penultBackPower * Math.abs(penultBackPower);
         }
 
         //following code is used to switch which side is front
@@ -268,19 +315,19 @@ public class SlideDrive extends OpMode {
             rightLift.setPower(0);
         }
 
-        if (gamepad1.right_bumper) {
+        if (gamepad1.left_bumper) {
             leftGrab.setPosition(0);
             rightGrab.setPosition(1);
         }
-        else if (gamepad1.left_bumper) {
+        else if (gamepad1.right_bumper) {
             leftGrab.setPosition(.9);
             rightGrab.setPosition(.1);
         }
-        else if (gamepad1.left_trigger > .5) {
+        else if (gamepad1.right_trigger > .5) {
             leftGrab.setPosition(.6);
             rightGrab.setPosition(.4);
         }
-        else if (gamepad1.right_trigger > .5) {
+        else if (gamepad1.left_trigger > .5) {
             leftGrab.setPosition(.4);
             rightGrab.setPosition(.6);
         }
