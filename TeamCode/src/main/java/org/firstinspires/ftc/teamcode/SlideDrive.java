@@ -253,10 +253,10 @@ public class SlideDrive extends OpMode {
                 break;
         }
         if (gamepad1.x) {
-            finLeftPower = penultLeftPower * 0.7;
-            finRightPower = penultRightPower * 0.7;
-            finFrontPower = penultFrontPower * 0.7;
-            finBackPower = penultBackPower * 0.7;
+            finLeftPower = penultLeftPower * Math.abs(penultLeftPower);
+            finRightPower = penultRightPower * Math.abs(penultRightPower);
+            finFrontPower = penultFrontPower * Math.abs(penultFrontPower);
+            finBackPower = penultBackPower * Math.abs(penultBackPower);
         }
         else if (gamepad1.y) {
             finLeftPower = penultLeftPower;
@@ -265,10 +265,10 @@ public class SlideDrive extends OpMode {
             finBackPower = penultBackPower;
         }
         else {
-            finLeftPower = penultLeftPower * Math.abs(penultLeftPower);
-            finRightPower = penultRightPower * Math.abs(penultRightPower);
-            finFrontPower = penultFrontPower * Math.abs(penultFrontPower);
-            finBackPower = penultBackPower * Math.abs(penultBackPower);
+            finLeftPower = penultLeftPower * 0.7;
+            finRightPower = penultRightPower * 0.7;
+            finFrontPower = penultFrontPower * 0.7;
+            finBackPower = penultBackPower * 0.7;
         }
 
         //following code is used to switch which side is front
